@@ -1,0 +1,73 @@
+﻿@model IEnumerable<VIdly.Models.Movie>
+@{
+    ViewBag.Title = "Movies";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Movies</h2>
+<p>
+    @Html.ActionLink("New Movie", "New", "Movie", null, new { @class = "btn btn-primary" })
+</p>
+<table id="Movies" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <td>Movie</td>
+            <td>Genre</td>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+
+</table>
+@section scripts {
+<script>
+    $(document).ready(function () {
+
+        var table = $("#Movies").DataTable({
+            ajax: {
+                url: "/api/movie",
+                dataSrc: ""
+
+            },
+            columns: [
+                {
+                    data: "name",
+                    render: function (data, type, customer) {
+                        return "<a href='/movie/edit/" + customer.id + "'>" + customer.name + "</a>";
+                    }
+                },
+                {
+                    data: "genre.name"
+                },
+                {
+                    data: "id",
+                    render: function (data) {
+                        return "<button class='btn-link js-delete' data-customer-id=" + data + ">Delete</button>";
+                    }
+                }
+            ]
+
+        });
+
+        $("#Movies").on("click", ".js-delete", function () {
+            button = $(this);
+            bootbox.confirm("Do you want to delete movie?", function (result) {
+                if (result) {
+                    $.ajax({
+                        url: "/api/movie/" + button.attr("data-movie-id"),
+                        method: "DELETE",
+                        success: function () {
+                            table.row(button.parents("tr")).remove().draw();
+                        }
+                    });
+                }
+
+            });
+        });
+    });
+
+</script>    
+    
+
+}
